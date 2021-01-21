@@ -1,29 +1,23 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+  <div v-if="isLoading">Loading...</div>
+  <div id="app" class="bg-red-500 h-screen w-full flex flex-wrap p-10" v-else>
+    <book-card v-for="book in books" :key="book.id" :book="book"></book-card>
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import { mapActions, mapGetters } from "vuex";
+import BookCard from './components/books/BookCard'
 export default {
   name: "App",
   data() {
     return {};
   },
   components: {
-    HelloWorld,
+    BookCard,
   },
-  beforeCreate() {
-    console.log(process.env.API_URL);
-    // let url = `volumes?q=drini&maxResults=25`;
-    // apiCall.get(url)
-    // .then(res=>{
-    //   console.log(res)
-    // }).catch(err=>{
-    //   console.log(err)
-    // })
+  
+  created(){
     let payload = {
       url: `volumes`,
       options: {
@@ -31,23 +25,22 @@ export default {
         maxResults: 25,
       },
     };
-    this.$store
-      .dispatch("books/loadBooks", payload)
-      .then((res) => console.log(res))
-      .catch((err) => {
-        console.log(err);
-      });
+    try{
+      this.loadBooks(payload).then(res=>console.log(res)).catch(err=>console.log(err))
+    }catch(err){
+      console.log(err.message)
+    }
   },
+  methods: {
+    ...mapActions("books", ["loadBooks"]),
+  },
+  computed:{
+    ...mapGetters('books',['books']),
+    ...mapGetters('books',['isLoading'])
+  }
 };
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
